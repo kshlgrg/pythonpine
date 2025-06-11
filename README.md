@@ -1,8 +1,5 @@
 
----
-
-````markdown
-# 🧠 pythonpine
+🧠 PYTHONPINE
 
 **An ultra-powerful Python library to compute over 100+ TradingView-style technical indicators** using real-time OHLCV data from MetaTrader5.
 
