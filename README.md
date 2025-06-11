@@ -189,12 +189,6 @@ Want to improve or expand this project? Feel free to fork, star 🌟, and submit
 
 ```
 
-Let me know if you'd like:
-- A Markdown badge version (e.g., for GitHub stars, issues, forks)
-- Embedded charts/images/gifs of indicators
-- To auto-generate the `setup.py` again
-- Or help turning it into a GitHub Pages site or portfolio!
-```
 
 
 This project is licensed under the GNU Affero General Public License v3.0.  
