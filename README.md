@@ -150,6 +150,103 @@ Z-Score, Rolling Stats, Skewness, Percentile, MAD, Fractal Dim, Garman-Klass, Ka
 
 ---
 
+## 📘 Built-in Functions Reference
+
+All functions are available directly after importing `pythonpine`. The functions are grouped by category and support standard Python lists or NumPy arrays. Make sure to call `get_ohlcv_arrays()` to retrieve updated price data.
+
+---
+
+### 🔧 Utility Functions
+
+| Function                                        | Inputs                    | Description                                     |
+| ----------------------------------------------- | ------------------------- | ----------------------------------------------- |
+| `connect_to_mt5(login, password, server, path)` | MT5 login credentials     | Connects to MetaTrader5 terminal                |
+| `get_ohlcv_arrays(symbol)`                      | symbol (str)              | Returns updated OHLCV arrays for a given symbol |
+| `get_price_at_index(price_array, index)`        | array (list), index (int) | Returns price at a specific bar index           |
+| `get_close(symbol)`                             | symbol (str)              | Returns the close array                         |
+| `get_open(symbol)`                              | symbol (str)              | Returns the open array                          |
+| `get_high(symbol)`                              | symbol (str)              | Returns the high array                          |
+| `get_low(symbol)`                               | symbol (str)              | Returns the low array                           |
+| `get_volume(symbol)`                            | symbol (str)              | Returns the volume array                        |
+
+---
+
+### 📈 Trend Indicators
+
+| Function                                           | Inputs                               | Description                |
+| -------------------------------------------------- | ------------------------------------ | -------------------------- |
+| `ema(data, period)`                                | data, period                         | Exponential Moving Average |
+| `sma(data, period)`                                | data, period                         | Simple Moving Average      |
+| `wma(data, period)`                                | data, period                         | Weighted Moving Average    |
+| `hma(data, period)`                                | data, period                         | Hull Moving Average        |
+| `vwma(data, volume, period)`                       | data, volume, period                 | Volume-Weighted MA         |
+| `supertrend(high, low, close, period, multiplier)` | high, low, close, period, multiplier | Supertrend indicator       |
+| `ichimoku(high, low)`                              | high, low                            | Ichimoku components        |
+| `parabolic_sar(high, low)`                         | high, low                            | Parabolic SAR values       |
+| `moving_average_ribbon(close, periods)`            | close, periods (list)                | Multiple MAs on one plot   |
+| `trend_strength_indicator(close, period)`          | close, period                        | Measures trend consistency |
+| `frama(close, period)`                             | close, period                        | Fractal Adaptive MA        |
+
+---
+
+### 🟦 Momentum Indicators
+
+| Function                                                      | Inputs                    | Description                 |
+| ------------------------------------------------------------- | ------------------------- | --------------------------- |
+| `rsi(close, period)`                                          | close, period             | Relative Strength Index     |
+| `stoch_rsi(close, period)`                                    | close, period             | Stochastic RSI              |
+| `stochastic_oscillator(high, low, close, k_period, d_period)` | high, low, close, k, d    | %K and %D Oscillator        |
+| `macd(close, fast, slow, signal)`                             | close, fast, slow, signal | MACD and histogram          |
+| `roc(close, period)`                                          | close, period             | Rate of Change              |
+| `cci(close, typical, period)`                                 | close, typical, period    | Commodity Channel Index     |
+| `trix(close, period)`                                         | close, period             | Triple EMA Oscillator       |
+| `ultimate_oscillator(high, low, close)`                       | high, low, close          | Momentum from 3 timeframes  |
+| `williams_r(high, low, close, period)`                        | high, low, close, period  | Williams %R                 |
+| `adx(high, low, close, period)`                               | high, low, close, period  | ADX with +DI and -DI        |
+| `momentum(close, period)`                                     | close, period             | Simple momentum calculation |
+| `elder_impulse(ema_period)`                                   | ema\_period               | Color-based trend/momentum  |
+| `schaff_trend_cycle(close)`                                   | close                     | Smoothed MACD-based cycle   |
+| `cmo(close, period)`                                          | close, period             | Chande Momentum Oscillator  |
+| `rvi(close, period)`                                          | close, period             | Relative Vigor Index        |
+
+---
+
+### 🟧 Volatility Indicators
+
+| Function                                    | Inputs                   | Description                 |
+| ------------------------------------------- | ------------------------ | --------------------------- |
+| `atr(high, low, close, period)`             | high, low, close, period | Average True Range          |
+| `bollinger_bands(close, period, devs)`      | close, period, devs      | Bollinger Bands             |
+| `keltner_channel(high, low, close, period)` | high, low, close, period | ATR-based envelope          |
+| `donchian_channel(high, low, period)`       | high, low, period        | Channel of extremes         |
+| `true_range(high, low, close)`              | high, low, close         | Daily true range            |
+| `std_dev(close, period)`                    | close, period            | Standard deviation of price |
+| `chaikin_volatility(high, low)`             | high, low                | Chaikin's volatility method |
+| `bollinger_percent_b(close, period)`        | close, period            | %B inside Bollinger Bands   |
+| `historical_volatility(close, period)`      | close, period            | StdDev log returns          |
+
+---
+
+### 🟨 Volume-Based Indicators
+
+| Function                                       | Inputs                           | Description                    |
+| ---------------------------------------------- | -------------------------------- | ------------------------------ |
+| `obv(close, volume)`                           | close, volume                    | On Balance Volume              |
+| `vwap(high, low, close, volume)`               | high, low, close, volume         | Volume-Weighted Avg Price      |
+| `adl(high, low, close, volume)`                | high, low, close, volume         | Accumulation/Distribution Line |
+| `cmf(high, low, close, volume, period)`        | high, low, close, volume, period | Chaikin Money Flow             |
+| `volume_oscillator(volume, short, long)`       | volume, short, long              | Volume-based oscillator        |
+| `force_index(close, volume)`                   | close, volume                    | Force Index                    |
+| `mfi(high, low, close, volume, period)`        | high, low, close, volume, period | Money Flow Index               |
+| `ease_of_movement(high, low, volume)`          | high, low, volume                | EMV Oscillator                 |
+| `vroc(volume, period)`                         | volume, period                   | Volume Rate of Change          |
+| `volume_delta(close, volume)`                  | close, volume                    | Buy-sell volume imbalance      |
+| `intraday_intensity(close, high, low, volume)` | close, high, low, volume         | Intraday pressure indicator    |
+
+---
+
+---
+
 ## 📚 Tutorials & Help
 
 We recommend using a Jupyter notebook or Python script to:
