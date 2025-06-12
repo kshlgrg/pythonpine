@@ -37,7 +37,7 @@ pip install MetaTrader5 numpy pandas scipy scikit-learn
 ### 2. Clone this repo
 
 ```bash
-git clone https://github.com/kshgrg/pythonpine.git
+git clone https://github.com/kshgrg/pythonpine
 cd pythonpine
 ```
 
