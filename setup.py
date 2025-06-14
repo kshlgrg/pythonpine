@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='pythonpine',
+    name='tradu',
     version='0.1.1',
     author='Kushal Garg',
     description='Pine Script-style indicator engine in Python',
