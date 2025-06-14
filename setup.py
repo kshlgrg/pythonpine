@@ -11,7 +11,7 @@ setup(
         'numpy',
         'pandas',
         'scipy',
-        'sklearn',
+        'scikit-learn',
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
