@@ -69,3 +69,9 @@ def lowList(start, end):
 
 def volumeList(start, end):
     return _get_list('tick_volume', start, end)
+
+def highest(end) :
+    return max(highList(0,end - 1))
+
+def lowest(end) :
+    return min(lowList(0,end - 1))
