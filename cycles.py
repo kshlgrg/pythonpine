@@ -2,7 +2,7 @@ import numpy as np
 from collections import deque
 import pandas as pd
 import math
-# 61. Fisher Transform
+# 1. Fisher Transform
 def fisher_transform(source_type="hl2", length=10, start=0, end=500, smooth=True, smooth_factor=0.33):
     """
     Fisher Transform with high/low normalization, smoothing, and clean output.
@@ -59,7 +59,7 @@ def fisher_transform(source_type="hl2", length=10, start=0, end=500, smooth=True
     return fish
 
 
-# 62. Hilbert Transform (Cycle and Trend components, simplified)
+# 2. Hilbert Transform (Cycle and Trend components, simplified)
 def hilbert_transform(priceList):
     """
     Discrete Hilbert Transform using a 4-coefficient FIR filter.
@@ -152,7 +152,7 @@ def ht_dominant_cycle(priceList, min_period=10, max_period=50):
         period[i] = float(round(cycle, 2))
 
     return period
-# 63. Ehler’s Instantaneous Trendline
+# 3. Ehler’s Instantaneous Trendline
 def ht_itrend(priceList, alpha=0.07):
     """
     Ehlers' Instantaneous Trendline (ITrend).
@@ -176,7 +176,7 @@ def ht_itrend(priceList, alpha=0.07):
     return itrend
 
 
-# 64. Detrended Price Oscillator
+# 4. Detrended Price Oscillator
 def detrended_price_oscillator(priceList, length=14):
     """
     Detrended Price Oscillator (DPO).
@@ -206,7 +206,7 @@ def detrended_price_oscillator(priceList, length=14):
 
     return dpo
 
-# 65. Laguerre RSI
+# 5. Laguerre RSI
 def laguerre_rsi(priceList, gamma=0.5):
     """
     Laguerre RSI by John Ehlers.
@@ -252,7 +252,7 @@ def laguerre_rsi(priceList, gamma=0.5):
     return rsi_vals
 
 
-# 66. Qstick
+# 6. Qstick
 def qstick(openList, closeList, length=14):
     """
     QStick Indicator.
@@ -284,7 +284,7 @@ def qstick(openList, closeList, length=14):
     return qstick_vals
 
 
-# 67. Stochastic Momentum Index (SMI)
+# 7. Stochastic Momentum Index (SMI)
 def stochastic_momentum_index(closeList, highList, lowList, length=14, smoothK=3, smoothD=3):
     """
     Stochastic Momentum Index (SMI).
@@ -346,7 +346,7 @@ def stochastic_momentum_index(closeList, highList, lowList, length=14, smoothK=3
     return smi_k_smooth, smi_d_smooth
 
 
-# 68. Adaptive Cycle Divergence (EMA Difference)
+# 8. Adaptive Cycle Divergence (EMA Difference)
 def adaptive_cycle_divergence(priceList):
     """
     Adaptive Cycle Divergence (ACD) by Ehlers.
@@ -386,7 +386,7 @@ def adaptive_cycle_divergence(priceList):
     return acd
 
 
-# 69. Phase Accumulation Cycle (simplified using FFT phase angle)
+# 9. Phase Accumulation Cycle (simplified using FFT phase angle)
 def phase_accumulation_cycle(priceList):
     """
     Ehlers' Phase Accumulation Dominant Cycle Estimator.
@@ -443,7 +443,7 @@ def phase_accumulation_cycle(priceList):
     return cycle_lengths
 
 
-# 70. Inverse Fisher Transform
+# 10. Inverse Fisher Transform
 def inverse_fisher_transform(series):
     """
     Inverse Fisher Transform.
@@ -468,7 +468,6 @@ def inverse_fisher_transform(series):
     return result
 
 # These are some additional indcators there by dont follow the number order 
-# --- Expert-Level Cycle Indicators ---
 
 # --- 1. MAMA & FAMA ---
 def mama_fama(priceList, fast_limit=0.5, slow_limit=0.05):
