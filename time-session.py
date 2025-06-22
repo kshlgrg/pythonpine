@@ -1,39 +1,37 @@
 from datetime import datetime, timedelta
 
-# 81. Normalized Time of Day [0.0 - 1.0]
-def time_of_day_normalized_utc():
-    now = datetime.utcnow()
-    seconds = now.hour * 3600 + now.minute * 60 + now.second
-    return seconds / 86400  # Total seconds in a day
+# --- 81. Time of Day (normalized 0 to 1) ---
+def normalized_time_of_day(timestamps):
+    utc_times = [ts.astimezone(timezone.utc) for ts in timestamps]
+    return [((ts.hour * 60 + ts.minute) / 1440) for ts in utc_times]
 
-# 82. Session High/Low
-def session_high_low_utc(highs, lows, session_start_utc, session_end_utc, timestamps_utc):
-    selected_highs = []
-    selected_lows = []
-    for i in range(len(timestamps_utc)):
-        if session_start_utc.time() <= timestamps_utc[i].time() <= session_end_utc.time():
-            selected_highs.append(highs[i])
-            selected_lows.append(lows[i])
-    return max(selected_highs) if selected_highs else None, min(selected_lows) if selected_lows else None
+# --- 82. Session High/Low ---
+def session_high_low(highList, lowList, session_start_index, session_end_index):
+    high = max(highList[session_start_index:session_end_index+1])
+    low = min(lowList[session_start_index:session_end_index+1])
+    return high, low
 
-# 83. Session Overlay (returns session name)
-def session_overlay_index_utc():
-    hour = datetime.utcnow().hour
-    if 0 <= hour < 8:
-        return "Asia"
-    elif 8 <= hour < 16:
-        return "London"
-    else:
-        return "New York"
+# --- 83. Session Overlay Flags (London/NY/Asia) ---
+def session_overlay_flags(timestamps):
+    utc_times = [ts.astimezone(timezone.utc) for ts in timestamps]
+    asia = [1 if 0 <= ts.hour < 9 else 0 for ts in utc_times]
+    london = [1 if 8 <= ts.hour < 17 else 0 for ts in utc_times]
+    ny = [1 if 13 <= ts.hour < 22 else 0 for ts in utc_times]
+    return asia, london, ny
 
-# 84. Day of Week Encoding (0 = Monday, 6 = Sunday)
-def day_of_week_encoding_utc():
-    return datetime.utcnow().weekday()
+# --- 84. Day of Week Encoding (0=Mon, ..., 6=Sun) ---
+def day_of_week(timestamps):
+    utc_times = [ts.astimezone(timezone.utc) for ts in timestamps]
+    return [ts.weekday() for ts in utc_times]
 
-# 85. Time Since Last High/Low (in bars ago)
-def time_since_last_high_low(price_array):
-    last_high = max(price_array)
-    last_low = min(price_array)
-    high_index = len(price_array) - 1 - price_array[::-1].index(last_high)
-    low_index = len(price_array) - 1 - price_array[::-1].index(last_low)
-    return len(price_array) - high_index - 1, len(price_array) - low_index - 1
+# --- 85. Time Since Last High/Low ---
+def time_since_last_extreme(priceList, extreme='high'):
+    last_time = 0
+    time_since = []
+    for i in range(len(priceList)):
+        if i == 0 or (extreme == 'high' and priceList[i] >= max(priceList[:i+1])) or (extreme == 'low' and priceList[i] <= min(priceList[:i+1])):
+            last_time = 0
+        else:
+            last_time += 1
+        time_since.append(last_time)
+    return time_since
