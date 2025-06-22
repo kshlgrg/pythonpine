@@ -1,112 +1,156 @@
 import numpy as np
 
-# 40. On Balance Volume (OBV)
-def obv(close, volume):
-    obv_vals = [0]
-    for i in range(1, len(close)):
-        if close[i] > close[i - 1]:
-            obv_vals.append(obv_vals[-1] + volume[i])
-        elif close[i] < close[i - 1]:
-            obv_vals.append(obv_vals[-1] - volume[i])
+# --- 40. On Balance Volume (OBV) ---
+def obv(closeList, volumeList):
+    obv_values = [0.0]
+    for i in range(1, len(closeList)):
+        if closeList[i] > closeList[i - 1]:
+            obv_values.append(obv_values[-1] + volumeList[i])
+        elif closeList[i] < closeList[i - 1]:
+            obv_values.append(obv_values[-1] - volumeList[i])
         else:
-            obv_vals.append(obv_vals[-1])
-    return [float(x) for x in obv_vals]
+            obv_values.append(obv_values[-1])
+    return obv_values
 
-# 41. VWAP (Volume Weighted Average Price)
-def vwap(high, low, close, volume):
-    typical_price = [(h + l + c) / 3 for h, l, c in zip(high, low, close)]
-    cum_vol_price = np.cumsum([tp * v for tp, v in zip(typical_price, volume)])
-    cum_vol = np.cumsum(volume)
-    vwap_vals = cum_vol_price / (cum_vol + 1e-10)
-    return [float(x) for x in vwap_vals]
+# --- 41. Volume Weighted Average Price (VWAP) ---
+def vwap(highList, lowList, closeList, volumeList):
+    cum_vol = 0.0
+    cum_vp = 0.0
+    result = []
+    for h, l, c, v in zip(highList, lowList, closeList, volumeList):
+        typical = (h + l + c) / 3
+        cum_vol += v
+        cum_vp += typical * v
+        result.append(cum_vp / cum_vol if cum_vol != 0 else 0.0)
+    return result
 
-# 42. Accumulation/Distribution Line
-def ad_line(high, low, close, volume):
-    ad_vals = []
-    for i in range(len(close)):
-        clv = ((close[i] - low[i]) - (high[i] - close[i])) / (high[i] - low[i] + 1e-10)
-        ad_vals.append(clv * volume[i])
-    return list(np.cumsum(ad_vals).astype(float))
+# --- 42. Accumulation/Distribution Line (ADL) ---
+def adl(highList, lowList, closeList, volumeList):
+    adl_vals = []
+    running_sum = 0.0
+    for h, l, c, v in zip(highList, lowList, closeList, volumeList):
+        mfm = ((c - l) - (h - c)) / (h - l + 1e-10)
+        mfv = mfm * v
+        running_sum += mfv
+        adl_vals.append(running_sum)
+    return adl_vals
 
-# 43. Chaikin Money Flow (CMF)
-def cmf(high, low, close, volume, period=20):
-    mfv = [((c - l) - (h - c)) / (h - l + 1e-10) * v for c, l, h, v in zip(close, low, high, volume)]
-    cmf_vals = [
-        float(sum(mfv[i - period:i]) / (sum(volume[i - period:i]) + 1e-10))
-        for i in range(period, len(close))
-    ]
-    return cmf_vals
+# --- 43. Chaikin Money Flow (CMF) ---
+def cmf(highList, lowList, closeList, volumeList, period=20):
+    mfv = [(((c - l) - (h - c)) / (h - l + 1e-10)) * v for h, l, c, v in zip(highList, lowList, closeList, volumeList)]
+    return [sum(mfv[i - period + 1:i + 1]) / (sum(volumeList[i - period + 1:i + 1]) + 1e-10) if i >= period - 1 else 0.0 for i in range(len(volumeList))]
 
-# 44. Volume Oscillator
-def volume_oscillator(volume, short_period=14, long_period=28):
-    short_ma = ema(volume, short_period)
-    long_ma = ema(volume, long_period)
-    min_len = min(len(short_ma), len(long_ma))
-    return [float((short_ma[-min_len:][i] - long_ma[-min_len:][i]) / (long_ma[-min_len:][i] + 1e-10) * 100)
-            for i in range(min_len)]
+# --- 44. Volume Oscillator ---
+def volume_oscillator(volumeList, short_period=14, long_period=28):
+    short_ma = [sum(volumeList[i - short_period + 1:i + 1]) / short_period if i >= short_period - 1 else 0.0 for i in range(len(volumeList))]
+    long_ma = [sum(volumeList[i - long_period + 1:i + 1]) / long_period if i >= long_period - 1 else 0.0 for i in range(len(volumeList))]
+    return [(s - l) / l * 100 if l != 0 else 0.0 for s, l in zip(short_ma, long_ma)]
 
-# 45. Force Index
-def force_index(close, volume, period=13):
-    fi = [float((close[i] - close[i - 1]) * volume[i]) for i in range(1, len(close))]
-    return ema(fi, period)
+# --- 45. Force Index ---
+def force_index(closeList, volumeList):
+    return [(closeList[i] - closeList[i - 1]) * volumeList[i] if i > 0 else 0.0 for i in range(len(closeList))]
 
-# 46. Money Flow Index (MFI)
-def mfi(high, low, close, volume, period=14):
-    tp = [(h + l + c) / 3 for h, l, c in zip(high, low, close)]
-    raw_money_flow = [tp[i] * volume[i] for i in range(len(tp))]
-    positive_flow, negative_flow = [], []
-    for i in range(1, len(tp)):
-        if tp[i] > tp[i - 1]:
-            positive_flow.append(raw_money_flow[i])
-            negative_flow.append(0)
-        elif tp[i] < tp[i - 1]:
-            positive_flow.append(0)
-            negative_flow.append(raw_money_flow[i])
+# --- 46. Money Flow Index (MFI) ---
+def mfi(highList, lowList, closeList, volumeList, period=14):
+    typical_price = [(h + l + c) / 3 for h, l, c in zip(highList, lowList, closeList)]
+    raw_mf = [tp * v for tp, v in zip(typical_price, volumeList)]
+    pos_flow = [raw_mf[i] if typical_price[i] > typical_price[i - 1] else 0.0 for i in range(1, len(typical_price))]
+    neg_flow = [raw_mf[i] if typical_price[i] < typical_price[i - 1] else 0.0 for i in range(1, len(typical_price))]
+    mfi_vals = [0.0] * len(closeList)
+    for i in range(period, len(pos_flow)):
+        pos_sum = sum(pos_flow[i - period:i])
+        neg_sum = sum(neg_flow[i - period:i])
+        if neg_sum == 0:
+            mfi_vals[i + 1] = 100.0
         else:
-            positive_flow.append(0)
-            negative_flow.append(0)
-    mfi_vals = []
-    for i in range(period, len(tp)):
-        pos = sum(positive_flow[i - period:i])
-        neg = sum(negative_flow[i - period:i]) + 1e-10
-        mfr = pos / neg
-        mfi = 100 - (100 / (1 + mfr))
-        mfi_vals.append(float(mfi))
+            money_ratio = pos_sum / neg_sum
+            mfi_vals[i + 1] = 100 - (100 / (1 + money_ratio))
     return mfi_vals
 
-# 47. Ease of Movement
-def ease_of_movement(high, low, volume, period=14):
-    emv = []
-    for i in range(1, len(high)):
-        distance = ((high[i] + low[i]) / 2) - ((high[i - 1] + low[i - 1]) / 2)
-        box_ratio = (volume[i] / 100000000) / (high[i] - low[i] + 1e-10)
-        emv.append(distance / (box_ratio + 1e-10))
-    return sma(emv, period)
+# --- 47. Ease of Movement (EOM) ---
+def ease_of_movement(highList, lowList, volumeList, period=14):
+    emv = [((highList[i] + lowList[i]) / 2 - (highList[i - 1] + lowList[i - 1]) / 2) * (highList[i] - lowList[i]) / (volumeList[i] + 1e-10) if i > 0 else 0.0 for i in range(len(highList))]
+    return [sum(emv[i - period + 1:i + 1]) / period if i >= period - 1 else 0.0 for i in range(len(emv))]
 
-# 48. Volume Rate of Change
-def volume_roc(volume, period=12):
-    return [float((volume[i] - volume[i - period]) / (volume[i - period] + 1e-10) * 100)
-            for i in range(period, len(volume))]
+# --- 48. Volume Rate of Change (VROC) ---
+def volume_roc(volumeList, period=14):
+    return [(volumeList[i] - volumeList[i - period]) / volumeList[i - period] * 100 if i >= period and volumeList[i - period] != 0 else 0.0 for i in range(len(volumeList))]
 
-# 49. Volume Delta (basic form: buy/sell imbalance)
-def volume_delta(close, volume):
-    delta = [volume[i] if close[i] > close[i - 1] else -volume[i] for i in range(1, len(close))]
-    return [float(x) for x in delta]
+# --- 49. Volume Delta (buy/sell imbalance) ---
+def volume_delta(buy_volume, sell_volume):
+    return [b - s for b, s in zip(buy_volume, sell_volume)]
 
-# 50. Intraday Intensity
-def intraday_intensity(high, low, close, volume, period=21):
-    ii = [((2 * close[i] - high[i] - low[i]) / (high[i] - low[i] + 1e-10)) * volume[i]
-          for i in range(len(close))]
-    return [float(sum(ii[i - period:i]) / sum(volume[i - period:i] + 1e-10))
-            for i in range(period, len(close))]
+# --- 50. Intraday Intensity ---
+def intraday_intensity(closeList, highList, lowList, volumeList, period=14):
+    ii = [((2 * c - h - l) / (h - l + 1e-10)) * v for c, h, l, v in zip(closeList, highList, lowList, volumeList)]
+    return [sum(ii[i - period + 1:i + 1]) / sum(volumeList[i - period + 1:i + 1]) if i >= period - 1 else 0.0 for i in range(len(volumeList))]
 
-# --- Utility SMA and EMA for reuse ---
-def sma(source, period):
-    return [float(np.mean(source[i - period:i])) for i in range(period, len(source))]
+def price_volume_trend(closeList, volumeList):
+    pvt = [0.0]
+    for i in range(1, len(closeList)):
+        change = (closeList[i] - closeList[i - 1]) / closeList[i - 1] if closeList[i - 1] != 0 else 0.0
+        pvt.append(pvt[-1] + change * volumeList[i])
+    return pvt
 
-def ema(source, period):
-    ema_vals = [source[0]]
-    k = 2 / (period + 1)
-    for i in range(1, len(source)):
-        ema_vals.append((source[i] - ema_vals[-1]) * k + ema_vals[-1])
-    return [float(x) for x in ema_vals]
+# --- Volume-Weighted MACD ---
+def vw_macd(closeList, volumeList, short_period=12, long_period=26, signal_period=9):
+    vwap = [(c * v) for c, v in zip(closeList, volumeList)]
+    total_vol = [volumeList[i] if volumeList[i] != 0 else 1e-10 for i in range(len(volumeList))]
+    weighted_price = [vwap[i] / total_vol[i] for i in range(len(vwap))]
+    short_ema = ema(weighted_price, short_period)
+    long_ema = ema(weighted_price, long_period)
+    macd_line = [s - l for s, l in zip(short_ema, long_ema)]
+    signal_line = ema(macd_line, signal_period)
+    hist = [m - s for m, s in zip(macd_line, signal_line)]
+    return macd_line, signal_line, hist
+
+# --- Smoothed OBV ---
+def smoothed_obv(obvList, period=14):
+    return ema(obvList, period)
+
+# --- Klinger Volume Oscillator ---
+def klinger_oscillator(highList, lowList, closeList, volumeList, fast=34, slow=55, signal=13):
+    trend = [1 if (h + l + c) / 3 > (h_ + l_ + c_) / 3 else -1 for h, l, c, h_, l_, c_ in zip(highList[1:], lowList[1:], closeList[1:], highList[:-1], lowList[:-1], closeList[:-1])]
+    dm = [h - l for h, l in zip(highList, lowList)]
+    cm = [abs(dm[i] - dm[i - 1]) if i > 0 else 0.0 for i in range(len(dm))]
+    vf = [volumeList[i] * trend[i - 1] * 100 * (dm[i] / cm[i] if cm[i] != 0 else 0.0) if i > 0 else 0.0 for i in range(len(dm))]
+    fast_ema = ema(vf, fast)
+    slow_ema = ema(vf, slow)
+    kvo = [f - s for f, s in zip(fast_ema, slow_ema)]
+    signal_line = ema(kvo, signal)
+    return kvo, signal_line
+
+# --- Volume Flow Indicator (VFI) ---
+def volume_flow_indicator(closeList, volumeList, period=130, coef=0.2):
+    import math
+    vfi = []
+    avg_vol = [sum(volumeList[max(0, i - period + 1):i + 1]) / period for i in range(len(volumeList))]
+    for i in range(1, len(closeList)):
+        log_ret = math.log(closeList[i] / closeList[i - 1]) if closeList[i - 1] != 0 else 0.0
+        cut_off = coef * avg_vol[i]
+        v = volumeList[i] if volumeList[i] < 2 * cut_off else cut_off
+        vfi.append(v * log_ret if log_ret > 0 else 0.0)
+    vfi = [0.0] + vfi
+    return ema(vfi, period)
+
+# --- Positive Volume Index (PVI) ---
+def pvi(closeList, volumeList):
+    result = [1000.0]
+    for i in range(1, len(closeList)):
+        if volumeList[i] > volumeList[i - 1]:
+            change = (closeList[i] - closeList[i - 1]) / closeList[i - 1] if closeList[i - 1] != 0 else 0.0
+            result.append(result[-1] + result[-1] * change)
+        else:
+            result.append(result[-1])
+    return result
+
+# --- Negative Volume Index (NVI) ---
+def nvi(closeList, volumeList):
+    result = [1000.0]
+    for i in range(1, len(closeList)):
+        if volumeList[i] < volumeList[i - 1]:
+            change = (closeList[i] - closeList[i - 1]) / closeList[i - 1] if closeList[i - 1] != 0 else 0.0
+            result.append(result[-1] + result[-1] * change)
+        else:
+            result.append(result[-1])
+    return result
