@@ -1,45 +1,61 @@
-def ma_crossover_count(short_ma, long_ma):
+# --- Meta/Composite Indicators ---
+
+# --- 71. MA Crossover Signal Count ---
+def ma_crossover_count(fast_ma, slow_ma):
     count = 0
-    for i in range(1, len(short_ma)):
-        if short_ma[i-1] < long_ma[i-1] and short_ma[i] > long_ma[i]:
+    for i in range(1, len(fast_ma)):
+        if fast_ma[i] > slow_ma[i] and fast_ma[i - 1] <= slow_ma[i - 1]:
             count += 1
     return count
 
-def indicator_consensus_score(*indicators):
-    scores = [1 if ind > 0 else -1 if ind < 0 else 0 for ind in indicators]
-    return sum(scores)
+# --- 72. Indicator Consensus Score ---
+def indicator_consensus(*signals):
+    return [sum(sig[i] for sig in signals) / len(signals) for i in range(len(signals[0]))]
 
-def momentum_volatility_composite(momentum_values, volatility_values):
-    return sum(momentum_values[-5:]) * sum(volatility_values[-5:])
+# --- 73. Momentum + Volatility Composite ---
+def momentum_volatility_score(momentum, volatility):
+    return [m * v for m, v in zip(momentum, volatility)]
 
-def trend_strength_score(trend_indicator):
-    mean = sum(trend_indicator[-10:]) / 10
-    return abs(trend_indicator[-1] - mean)
+# --- 74. Trend Strength Score ---
+def trend_strength_score(priceList, period=14):
+    ts = []
+    for i in range(len(priceList)):
+        if i < period:
+            ts.append(0.0)
+        else:
+            gains = [priceList[j] - priceList[j - 1] for j in range(i - period + 1, i + 1) if priceList[j] > priceList[j - 1]]
+            ts.append(sum(gains) / period if gains else 0.0)
+    return ts
 
+# --- 75. MACD Histogram Angle ---
 def macd_histogram_angle(macd_hist):
-    if len(macd_hist) < 3:
-        return 0.0
-    return (macd_hist[-1] - macd_hist[-3]) / 2.0
+    angles = [0.0]
+    for i in range(1, len(macd_hist)):
+        angles.append(math.degrees(math.atan(macd_hist[i] - macd_hist[i - 1])))
+    return angles
 
-def rsi_divergence_count(price, rsi):
+# --- 76. RSI Divergence Count (Simplified) ---
+def rsi_divergence_count(priceList, rsiList, lookback=14):
     count = 0
-    for i in range(2, len(price)):
-        if price[i] > price[i-1] > price[i-2] and rsi[i] < rsi[i-1] < rsi[i-2]:
+    for i in range(lookback, len(priceList)):
+        if priceList[i] > priceList[i - lookback] and rsiList[i] < rsiList[i - lookback]:
             count += 1
     return count
 
-def volume_spike_flag(volume_array, threshold_multiplier=2.0):
-    avg_volume = sum(volume_array[-20:]) / 20
-    return 1 if volume_array[-1] > threshold_multiplier * avg_volume else 0
+# --- 77. Volume Spike Flag ---
+def volume_spike(volumeList, multiplier=2.0):
+    avg_vol = np.mean(volumeList)
+    return [1 if v > multiplier * avg_vol else 0 for v in volumeList]
 
-def multi_timeframe_ema_alignment(*emas):
-    return 1 if all(emas[i] > emas[i+1] for i in range(len(emas)-1)) else -1
+# --- 78. Multi-Timeframe EMA Alignment (Stub) ---
+def mtf_ema_alignment(ema_short, ema_mid, ema_long):
+    return [1 if s > m > l else 0 for s, m, l in zip(ema_short, ema_mid, ema_long)]
 
-def trend_reversal_likelihood(price_array):
-    recent = price_array[-5:]
-    return 1 if recent == sorted(recent, reverse=True) else -1 if recent == sorted(recent) else 0
+# --- 79. Trend Reversal Likelihood ---
+def trend_reversal_likelihood(priceList, rsiList):
+    return [1 if rsi > 70 and priceList[i] < priceList[i - 1] else 0 for i, rsi in enumerate(rsiList) if i > 0]
 
-def consolidation_detector(price_array, threshold=0.002):
-    max_p = max(price_array[-10:])
-    min_p = min(price_array[-10:])
-    return 1 if (max_p - min_p) / min_p < threshold else 0
+# --- 80. Consolidation Detector (Std Dev Drop) ---
+def consolidation_detector(priceList, period=20, threshold=0.01):
+    stds = rolling_mean_std(priceList, period)[1]
+    return [1 if std < threshold else 0 for std in stds]
