@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import skew, kurtosis, entropy, rankdata
+from scipy.stats import skew, kurtosis, entropy
 from numpy.lib.stride_tricks import sliding_window_view
 
 # --- 86. Z-score of Price ---
@@ -31,17 +31,17 @@ def rolling_mean_std(priceList, period=20):
 
 # --- 88. Skewness and Kurtosis ---
 def skewness_kurtosis(priceList, period=20):
-    skew = []
-    kurt = []
+    skew_vals = []
+    kurt_vals = []
     for i in range(len(priceList)):
         if i < period - 1:
-            skew.append(0.0)
-            kurt.append(0.0)
+            skew_vals.append(0.0)
+            kurt_vals.append(0.0)
         else:
             window = priceList[i - period + 1:i + 1]
-            skew.append(stats.skew(window))
-            kurt.append(stats.kurtosis(window))
-    return skew, kurt
+            skew_vals.append(skew(window))
+            kurt_vals.append(kurtosis(window))
+    return skew_vals, kurt_vals
 
 # --- 89. Price Percentile Rank ---
 def percentile_rank(priceList, period=20):
@@ -51,6 +51,7 @@ def percentile_rank(priceList, period=20):
             ranks.append(0.0)
         else:
             window = priceList[i - period + 1:i + 1]
+            # Using simple rank calculation
             rank = sum(1 for v in window if v < priceList[i]) / period
             ranks.append(rank)
     return ranks

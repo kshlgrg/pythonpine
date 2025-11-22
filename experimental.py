@@ -1,7 +1,8 @@
 import numpy as np
 from numpy.linalg import lstsq
 from scipy.signal import lfilter
-from math import log, sqrt
+import scipy.stats as stats
+import math
 
 # --- 91. Fractal Dimension Index (Katz Method) ---
 def fractal_dimension(priceList, period=10):
